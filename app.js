@@ -1,47 +1,31 @@
+
 const form = document.querySelector('#searchForm');
 const res = document.querySelector('#resTable');
 const cont = document.getElementById("allContaint");
-var rec;
+
 form.addEventListener('submit',(e)=>{
     e.preventDefault();
-    if(rec){
-        clearTimeout(rec);
-    }
     const ctype = form.elements.coinType.value;
     cont.classList.add('mainClick');
     cont.classList.remove('main');    
     fetchPrice(ctype);
-    
 
 });
 
 const fetchPrice = async(ctype) =>{
-    const r = await axios.get(`https://api.cryptonator.com/api/ticker/${ctype}`);
-    console.log(r.data.ticker.price);
-    showPrice(r.data.ticker,r.data.timestamp);
-     rec = setTimeout(() => fetchPrice(`https://api.cryptonator.com/api/ticker/${ctype}`), 10000);
+    const r = await axios.get(`https://api.coinstats.app/public/v1/coins/${ctype}?currency=USD`);
+    showPrice(r.data.coin);
 }
 
-function timeConverter(UNIX_timestamp){
-    var a = new Date(UNIX_timestamp * 1000);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var year = a.getFullYear();
-    var month = months[a.getMonth()];
-    var date = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
-    var sec = a.getSeconds();
-    var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-    return time;
-  }
 
-const showPrice = (ticker,timestamp)=>{
-    const time = timeConverter(timestamp);
-    const price = ticker.price;
-    const vol = ticker.volume;
-    const change = ticker.change;
-    const coin = ticker.base;
-    const curr = ticker.target;
+const showPrice = (coinData)=>{
+    const price = coinData.price;
+    const vol = coinData.volume;
+    const change = coinData.priceChange1d;
+    const coin = coinData.name;
+    const rank = coinData.rank;
+    const marketCap = coinData.marketCap;
+    const curr = 'USD';
     var col= "green";
     if(change<0){
         col = "red";
@@ -67,7 +51,12 @@ const showPrice = (ticker,timestamp)=>{
     <td style="color:${col};">${change} ${curr}</td>
 </tr>
 <tr>
-    <td>Last Update</td>
-    <td>${time}</td>
+    <td>Rank</td>
+    <td style="color:${col};">${rank}</td>
+</tr>
+<tr>
+    <td>Market capital</td>
+    <td style="color:${col};">${marketCap}</td>
 </tr>`;
+
 };
